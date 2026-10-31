@@ -65,6 +65,10 @@ check("strip_html: math preserved as $..$", text:find("%$") ~= nil, "no $ in out
 check("strip_html: script gone", text:find("ltx_font") == nil)
 check("strip_html: title survives", text:find("anyon") ~= nil, "anyon not in stripped text")
 check("strip_html: reasonable size", #text > 20000 and #text < 400000, #text)
+check("strip_html: no site chrome (report/back-banner)",
+  text:find("Report GitHub Issue") == nil and text:find("Why HTML") == nil)
+check("strip_html: starts at document title",
+  text:sub(1, 60):find("Variational") ~= nil, text:sub(1, 60))
 
 -- 2007 backfill rendering (different LaTeXML vintage)
 local text07 = shared.strip_html(read_fixture("0704.html"))

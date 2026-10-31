@@ -152,6 +152,19 @@ local line_tags = { li = true, tr = true, td = true, th = true }
 -- comments dropped, block closes become paragraph breaks, entities decoded.
 function shared.strip_html(html)
   if html == nil then return "" end
+  -- arXiv LaTeXML renderings wrap the paper in exactly ONE <article> span;
+  -- everything outside it is site chrome (report-issue forms, banners,
+  -- nav, footers — the live 2607 page carried more than the fixture did).
+  -- Prefer the article span; fall back to explicit chrome-block removal.
+  local art = string.match(html, "<article[^>]*>[%s%S]-</article>")
+  if art ~= nil then
+    html = art
+  else
+    html = string.gsub(html, "<nav[^>]*>[%s%S]-</nav>", " ")
+    html = string.gsub(html, "<header[^>]*>[%s%S]-</header>", " ")
+    html = string.gsub(html, "<footer[^>]*>[%s%S]-</footer>", " ")
+    html = string.gsub(html, "<form[^>]*>[%s%S]-</form>", " ")
+  end
   html = string.gsub(html, "<script[%s%S]-</script>", " ")
   html = string.gsub(html, "<style[%s%S]-</style>", " ")
   html = string.gsub(html, "<head[^>]*>[%s%S]-</head>", " ")
