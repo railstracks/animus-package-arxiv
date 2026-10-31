@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/BYLp8te/+Ga5O/xucZAti5eAuYQ</id>
+  <title>arXiv Query: search_query=all:electron OR all:correlation&amp;id_list=&amp;start=0&amp;max_results=2</title>
+  <updated>2026-10-31T20:13:09Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:electron+OR+all:correlation&amp;start=0&amp;max_results=2&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>2</opensearch:itemsPerPage>
+  <opensearch:totalResults>374725</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2610.40657v1</id>
+    <title>Variational wavefunctions for ideal anyon gas: superfluid and skyrmion Hall crystal</title>
+    <updated>2026-10-29T17:59:59Z</updated>
+    <link href="https://arxiv.org/abs/2610.40657v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.40657v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>The ground state of an ideal gas of anyons with statistical angle $θ\in(0,π)$ is a long-standing open problem, with renewed interest from the recent observations of fractional Chern insulators. In this work we construct variational wavefunctions that build in the exact anyon statistics and combine theory-guided composite-boson, composite-fermion and parton wavefunctions with neural-network correlations on the sphere. For spinless and SU(2) semions we confirm the paired anyon superfluid, well below the best crystal states. At $θ=π/3$ liquids and crystals are closer in energy for the spinless case. For $θ=π/3$ anyons with SU(3) flavor, we find two candidates. One is a skyrmion Hall crystal, in which the anyons form an integer quantum Hall state in the effective magnetic field from the spin texture. The other is a chiral color superconductor of six-anyon clusters, the color-flavor-locked pairing descendant of a holon metal with SU(3) color gauge symmetry and SU(3) flavor symmetry; its wavefunction is a hyperdeterminant rather than a product of parton determinants. Within our variational ansatz the color superconductor has better energy than both crystals and the color-flavor locked phases with U(1)$^2$ and Z$_3$ gauge groups. For twisted MoTe$_2$ this suggests that the reentrant integer quantum anomalous Hall phase is the skyrmion Hall crystal of the doped anyons, and that the observed superconductivity may be the color superconductor, which can undergo a transition to an $f+if$ BCS superconductor with a jump of the chiral central charge by 3.</summary>
+    <category term="cond-mat.str-el" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cond-mat.mes-hall" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-29T17:59:59Z</published>
+    <arxiv:comment>31 pages, 10 figures (2 in the main text), including Supplemental Material</arxiv:comment>
+    <arxiv:primary_category term="cond-mat.str-el"/>
+    <author>
+      <name>Ya-Hui Zhang</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.40656v1</id>
+    <title>The $δ$ Scuti instability strip and period-luminosity relation as seen by TESS and Gaia DR3</title>
+    <updated>2026-10-29T17:59:55Z</updated>
+    <link href="https://arxiv.org/abs/2610.40656v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.40656v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>We present an asteroseismic survey of 1,526,218 A- and F-type stars in and around the $δ$ Scuti instability strip using TESS 10-minute cadence data, which resolve the full $δ$ Scuti pulsation spectra across nearly the entire sky. We derive homogeneous stellar parameters from Gaia DR3 parallaxes and archival photometry, with temperatures that agree with interferometry to within ~300 K. A Positive--Unlabelled classifier identifies 156,706 $δ$ Scuti pulsators, which on average rotate significantly faster than non-variable A-type stars. Within the instability strip in the $T_{eff}$--$\log L$ plane, the pulsator fraction peaks at 30% over the full sample and rises to 80% in the brightest magnitude bins. Detection sensitivity therefore accounts for much, but not all, of the apparent impurity of the strip. Our period--luminosity relation agrees with previous determinations, and we recast it as a scale-invariant period--density relation that connects directly to the pulsation constant. We find that the secondary ridge in these relations is probably a combination of several overtone modes. The $δ$ Scuti stars closest to the fundamental ridge have systematically lower rotational velocities and occupy a distinct region of the instability strip. Finally, a cross-match with a Gaia catalog of open clusters reveals a correlation between the mean pulsation frequency of $δ$ Scuti stars and cluster age, suggesting a new ensemble asteroseismic age indicator for young stellar populations.</summary>
+    <category term="astro-ph.SR" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="astro-ph.GA" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-29T17:59:55Z</published>
+    <arxiv:comment>23(!) pages, 13 figures. Re-submitted to ApJ following positive report</arxiv:comment>
+    <arxiv:primary_category term="astro-ph.SR"/>
+    <author>
+      <name>Daniel Hey</name>
+    </author>
+    <author>
+      <name>Simon Murphy</name>
+    </author>
+    <author>
+      <name>Timothy R. Bedding</name>
+    </author>
+    <author>
+      <name>Anuj Gautam</name>
+    </author>
+    <author>
+      <name>Daniel Huber</name>
+    </author>
+    <author>
+      <name>Yaguang Li</name>
+    </author>
+    <author>
+      <name>Ian Berry</name>
+    </author>
+    <author>
+      <name>Hyde Kenney</name>
+    </author>
+    <author>
+      <name>Prasad Mani</name>
+    </author>
+    <author>
+      <name>Tom Love</name>
+    </author>
+    <author>
+      <name>Mykyta Kliapets</name>
+    </author>
+  </entry>
+</feed>

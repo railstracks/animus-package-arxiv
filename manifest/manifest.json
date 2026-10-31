@@ -1,0 +1,137 @@
+{
+  "kind": "api_package",
+  "name": "arxiv",
+  "version": "0.1.0",
+  "display_name": "ArXiv Research Papers",
+  "description": "ArXiv browsing for agents: search the arXiv API, cache papers locally (HTML rendering → text pages for paginated reading), track phrases with a rotating new-paper poll. No credentials required.",
+  "keywords": [
+    "arxiv",
+    "papers",
+    "research",
+    "reading",
+    "science"
+  ],
+  "author": "Kestrel",
+  "license": "MIT",
+  "homepage": "https://github.com/railstracks/animus-package-arxiv",
+  "egress_hosts": [
+    "export.arxiv.org",
+    "arxiv.org"
+  ],
+  "state_schema": {
+    "phrases": {
+      "type": "string",
+      "description": "JSON array of search queries for the poll rotation, e.g. [\"electron correlation lattice\", \"agent memory\"]",
+      "default": "[]"
+    },
+    "seen": {
+      "type": "string",
+      "description": "JSON array of recently seen arxiv ids (poll dedupe, capped at 1000)",
+      "default": "[]"
+    },
+    "library": {
+      "type": "string",
+      "description": "JSON object: cached-paper index keyed by arxiv id",
+      "default": "{}"
+    },
+    "poll_cursor": {
+      "type": "string",
+      "description": "poll rotation position",
+      "default": "0"
+    }
+  },
+  "commands": [
+    {
+      "name": "search",
+      "kind": "action",
+      "description": "Search arXiv. Returns id, title, authors, date, category and abstract excerpt per hit. sort: submittedDate | relevance | lastUpdatedDate.",
+      "parameters": {
+        "query": {
+          "type": "string",
+          "required": true
+        },
+        "start": {
+          "type": "integer",
+          "required": false
+        },
+        "max_results": {
+          "type": "integer",
+          "required": false
+        },
+        "sort": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "script_file": "scripts/search.lua"
+    },
+    {
+      "name": "paper abstract",
+      "kind": "action",
+      "description": "Full metadata + abstract for any arXiv paper by id. No caching — the cheap existence + metadata check.",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "script_file": "scripts/paper_abstract.lua"
+    },
+    {
+      "name": "paper cache",
+      "kind": "action",
+      "description": "Cache a paper for reading: fetch metadata, pull the arXiv HTML rendering, strip to text, split into ~8KB pages in the package filespace. Falls back to abstract-only when no rendering exists. Re-caching replaces the old copy. include_pdf=true also archives the PDF binary.",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "include_pdf": {
+          "type": "boolean",
+          "required": false
+        }
+      },
+      "script_file": "scripts/paper_cache.lua"
+    },
+    {
+      "name": "paper read",
+      "kind": "action",
+      "description": "Read one page of a cached paper (paginated reading; use next_page to walk). ~8KB of clean text per page, math inline as $LaTeX$.",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "required": false
+        }
+      },
+      "script_file": "scripts/paper_read.lua"
+    },
+    {
+      "name": "cache list",
+      "kind": "action",
+      "description": "List the local reading library: everything cached with mode, page count, and size.",
+      "script_file": "scripts/cache_list.lua"
+    },
+    {
+      "name": "cache remove",
+      "kind": "action",
+      "description": "Remove a paper from the library: pages, metadata, and optional PDF.",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "script_file": "scripts/cache_remove.lua"
+    },
+    {
+      "name": "poll",
+      "kind": "action",
+      "description": "New-paper check: queries one configured phrase per invocation (rotating), returns papers not seen before. Politeness: schedule no tighter than one call per few minutes — arXiv asks for >= 3s between queries. New hits are recorded but never auto-cached; triage is the agent's call.",
+      "script_file": "scripts/poll.lua"
+    }
+  ]
+}
