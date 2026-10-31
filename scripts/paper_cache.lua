@@ -20,15 +20,29 @@ function run(ctx)
   end
   local sid = shared.safe_id(e.id)
 
-  -- 2) HTML rendering (http 2/3) — text pages; fall back to abstract-only
-  local text, html_sha, mode
+  -- 2) HTML rendering (http 2/3) — text pages; fall back to abstract-only.
+  -- Render + hash run under pcall: the sandbox instruction-count hook
+  -- raises a CATCHABLE Lua error, so a budget trip on a heavy rendering
+  -- degrades to an abstract-only cache flagged degraded="instruction_limit"
+  -- instead of failing the run (0.1.2 field report: a 1.75MB math/tables-
+  -- heavy rendering — its text is only 203KB — tripped the kernel's 10M
+  -- instruction budget; body_hash now samples large bodies so the trip
+  -- should not recur — this degrade is the belt-and-braces floor).
+  local text, html_sha, mode, degraded
   local hr = ctx.http.get(shared.HTML_BASE .. e.id, {headers = shared.headers(), timeout_s = 60})
   if hr.status == 200 and #hr.body > 1000 then
-    text = shared.strip_html(hr.body)
-    html_sha = shared.body_hash(ctx, hr.body)
-    mode = "html"
-  else
-    -- no rendering (or unusably short body): abstract-only cache
+    local ok_strip, t = pcall(shared.strip_html, hr.body)
+    local ok_hash, sha = pcall(shared.body_hash, ctx, hr.body)
+    if ok_strip and t ~= nil and #t > 0 and ok_hash then
+      text, html_sha, mode = t, sha, "html"
+    else
+      degraded = (ok_strip and ok_hash) and "empty_render" or "instruction_limit"
+      ctx.log("html render degraded (" .. degraded ..
+              ") — caching abstract-only; web_fetch the rendering for full text")
+    end
+  end
+  if mode == nil then
+    -- no rendering, unusably short body, or render-budget trip: abstract-only
     text = e.title .. "\n\n" .. (e.summary or "")
     html_sha = nil
     mode = "abstract"
@@ -68,7 +82,8 @@ function run(ctx)
     primary_category = e.primary_category, categories = e.categories,
     pdf_url = e.pdf_url, abs_url = e.abs_url,
     mode = mode, pages = #sp.pages, total_chars = sp.total_chars,
-    html_sha256 = html_sha, has_pdf = has_pdf, cached_at = ctx.now
+    html_sha256 = html_sha, has_pdf = has_pdf, cached_at = ctx.now,
+    degraded = degraded
   }
   ctx.fs.write(sid .. ".meta.json", json.encode(meta))
 
@@ -80,9 +95,14 @@ function run(ctx)
 
   local abstract = e.summary or ""
   if #abstract > 300 then abstract = string.sub(abstract, 1, 300) .. "…" end
-  return {
+  local out = {
     success = true, id = e.id, title = e.title, mode = mode,
     pages = #sp.pages, total_chars = sp.total_chars, pdf_cached = has_pdf,
     abstract = abstract
   }
+  if degraded ~= nil then
+    out.degraded = degraded
+    out.note = "render budget tripped — cached abstract-only; web_fetch the HTML rendering for full text"
+  end
+  return out
 end

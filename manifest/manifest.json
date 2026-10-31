@@ -1,7 +1,7 @@
 {
   "kind": "api_package",
   "name": "arxiv",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "display_name": "ArXiv Research Papers",
   "description": "ArXiv browsing for agents: search the arXiv API, cache papers locally (HTML rendering → text pages for paginated reading), track phrases with a rotating new-paper poll. No credentials required.",
   "keywords": [
@@ -80,7 +80,7 @@
     {
       "name": "paper cache",
       "kind": "action",
-      "description": "Cache a paper for reading: fetch metadata, pull the arXiv HTML rendering, strip to text, split into ~8KB pages in the package filespace. Falls back to abstract-only when no rendering exists. Re-caching replaces the old copy. include_pdf=true also archives the PDF binary.",
+      "description": "Cache a paper for reading: fetch metadata, pull the arXiv HTML rendering, strip to text, split into ~8KB pages in the package filespace. Falls back to abstract-only when no rendering exists. Re-caching replaces the old copy. include_pdf=true also archives the PDF binary. A render over the sandbox instruction budget degrades to an abstract-only cache flagged degraded=\"instruction_limit\" (web_fetch the rendering for full text) instead of failing.",
       "parameters": {
         "id": {
           "type": "string",

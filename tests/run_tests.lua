@@ -120,6 +120,29 @@ check("body_hash: input-sensitive", shared.body_hash(nil, "different body") ~= b
 local bh_ctx = {crypto = {sha256 = function(s) return "sha(" .. s .. ")" end}}
 check("body_hash: kernel sha256 passthrough",
       shared.body_hash(bh_ctx, "x") == "sha(x)", shared.body_hash(bh_ctx, "x"))
+
+-- 0.1.3: sampled hash — large bodies must not cost a full sweep (the
+-- 0.1.2 field-report failure: 1.75MB full-sweep = ~15M VM instructions,
+-- over the kernel's 10M sandbox budget by itself)
+check("body_hash: threshold small side (full sweep)",
+      string.find(shared.body_hash(nil, string.rep("x", 48000)), "^djb2:") ~= nil)
+check("body_hash: threshold large side (sampled)",
+      string.find(shared.body_hash(nil, string.rep("x", 48001)), "^djb2s:") ~= nil)
+local big_body = string.rep("abcd0123", 30000)  -- 240KB
+local sbh = shared.body_hash(nil, big_body)
+check("body_hash: sampled format is len-tagged",
+      string.find(sbh, "^djb2s:%x+:%d+$") ~= nil, tostring(sbh))
+check("body_hash: sampled deterministic", shared.body_hash(nil, big_body) == sbh)
+check("body_hash: sampled head-sensitive",
+      shared.body_hash(nil, "X" .. string.sub(big_body, 2)) ~= sbh)
+check("body_hash: sampled tail-sensitive",
+      shared.body_hash(nil, string.sub(big_body, 1, #big_body - 1) .. "X") ~= sbh)
+-- interior spans ARE sampled (span 0 covers 4097..6144 for this size);
+-- a mutation between spans goes unseen BY DESIGN — this is a sampled hash
+-- for change detection, not a cryptographic digest
+check("body_hash: sampled interior-span sensitive",
+      shared.body_hash(nil, string.sub(big_body, 1, 5000) .. "X" ..
+                       string.sub(big_body, 5002)) ~= sbh)
 local iu = shared.id_url("hep-th/9901001")
 check("id_url: slash encoded", iu:find("%%2F") ~= nil, iu)
 
@@ -177,10 +200,59 @@ cctx2.crypto = nil
 local cres2 = cache_run(cctx2)
 check("cache: no-crypto kernel succeeds", cres2.success == true, cres2.error)
 local lib2 = json.decode_safe(cctx2._state.library)
-check("cache: no-crypto html hash is djb2",
+check("cache: no-crypto html hash is sampled (1MB fixture)",
       lib2 ~= nil and lib2["2610.40657v1"] ~= nil and
-        string.find(tostring(lib2["2610.40657v1"].html_sha256), "^djb2:%x+$") ~= nil,
+        string.find(tostring(lib2["2610.40657v1"].html_sha256), "^djb2s:%x+:%d+$") ~= nil,
       lib2 ~= nil and lib2["2610.40657v1"] and tostring(lib2["2610.40657v1"].html_sha256))
+
+-- the real 0.1.2 field-report failure: 1.75MB math/tables-heavy LaTeXML
+-- rendering (2610.36491v1, q-fin.PM) through the full cache path on a
+-- crypto-less ctx — the sampled hash must keep it inside any budget
+local hctx = mock.new({
+  routes = {
+    {match = "id_list=", body = read_fixture("atom-byid-36491.xml")},
+    {match = "arxiv.org/html/", body = read_fixture("2610-36491.html")},
+  },
+  args = {id = "2610.36491v1"}
+})
+hctx.crypto = nil
+local hres = cache_run(hctx)
+check("cache: heavy 1.75MB fixture succeeds (no-crypto)",
+      hres.success == true, hres.error)
+check("cache: heavy fixture html mode", hres.mode == "html", tostring(hres.mode))
+check("cache: heavy fixture many pages",
+      hres.pages ~= nil and hres.pages >= 10, tostring(hres.pages))
+local hlib = json.decode_safe(hctx._state.library)
+check("cache: heavy fixture sampled hash recorded",
+      hlib ~= nil and hlib["2610.36491v1"] ~= nil and
+        string.find(tostring(hlib["2610.36491v1"].html_sha256), "^djb2s:%x+:%d+$") ~= nil,
+      "meta hash")
+
+-- degrade path: a render that raises (the count hook's luaL_error is a
+-- plain catchable Lua error) must produce an abstract-only cache, not a
+-- run error — the agent keeps a working cache + a loud web_fetch note
+local strip_real = shared.strip_html
+shared.strip_html = function() error("instruction limit exceeded", 0) end
+local dctx = mock.new({
+  routes = {
+    {match = "id_list=", body = read_fixture("atom-byid-2610.xml")},
+    {match = "arxiv.org/html/", body = html_body},
+  },
+  args = {id = "2610.40657v1"}
+})
+dctx.crypto = nil
+local dres = cache_run(dctx)
+shared.strip_html = strip_real
+check("cache: degrade on render error → success", dres.success == true, tostring(dres.error))
+check("cache: degrade → abstract mode", dres.mode == "abstract", tostring(dres.mode))
+check("cache: degrade flag surfaces",
+      dres.degraded == "instruction_limit", tostring(dres.degraded))
+check("cache: degrade note names web_fetch",
+      dres.note ~= nil and dres.note:find("web_fetch", 1, true) ~= nil, tostring(dres.note))
+local dlib = json.decode_safe(dctx._state.library)
+check("cache: degrade recorded in library meta",
+      dlib ~= nil and dlib["2610.40657v1"] ~= nil and
+        dlib["2610.40657v1"].degraded == "instruction_limit", "meta flag")
 
 -- ============ read back every page ============
 dofile(root .. "/scripts/paper_read.lua")

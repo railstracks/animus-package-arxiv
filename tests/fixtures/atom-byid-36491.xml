@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/EvICNAQ5t5N2BW3cWFr9La/50Ys</id>
+  <title>arXiv Query: search_query=&amp;id_list=2610.36491v1&amp;start=0&amp;max_results=1</title>
+  <updated>2026-10-31T22:02:11Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=1&amp;id_list=2610.36491v1" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>1</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2610.36491v1</id>
+    <title>Simple Portfolios that Deliver Consistent Decent Returns</title>
+    <updated>2026-10-27T01:45:09Z</updated>
+    <link href="https://arxiv.org/abs/2610.36491v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.36491v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Portfolio construction has been studied extensively in both academia and industry. Its applications range from pension funds and hedge funds to private savings. The academic literature centers on methodology, commonly evaluated in settings that allow short selling, leverage, and frequent trading. Industry, on the other hand, operates under real constraints, but its data and methods are proprietary and largely unpublished. Neither is directly available to the private investor. This paper is an empirical study of established portfolio construction methods in the setting of the private investor. We consider a small investable universe of liquid US ETFs, where trading is monthly and carries a cost, and neither shorting nor leverage is permitted. Portfolio construction is posed as a convex optimization problem, its inputs are estimated from public data, and every parameter is interpretable. We denote such portfolios simple. We show that simple portfolios of as few as three ETFs deliver consistent and decent returns, without tuning to the backtest period. To find them, we have developed a framework, which we share publicly, able to backtest hundreds of portfolios on a standard laptop over a twenty year period or longer. When no return forecast is made, portfolios are constructed from risk alone, using methods such as risk parity and minimum volatility, built on a statistical factor model fitted with expectation maximization. When a forecast is made, we combine the Markowitz formulation with momentum signals and ridge regression. We report what works and what each component adds, weighing its gain against its complexity and the effort it demands of the investor. The findings are supported by numerical experiments over the past two decades, and the proposed portfolios outperform the standard 60/40 allocation.</summary>
+    <category term="q-fin.PM" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-27T01:45:09Z</published>
+    <arxiv:comment>71 pages, 27 figures. Code available at https://github.com/AlexEmrik/consistent-decent-returns. Risk model package available at https://github.com/oskaredenwallberg/covforge and via pip install covforge</arxiv:comment>
+    <arxiv:primary_category term="q-fin.PM"/>
+    <author>
+      <name>Oskar Edén Wallberg</name>
+    </author>
+    <author>
+      <name>Alexander Karolin</name>
+    </author>
+  </entry>
+</feed>

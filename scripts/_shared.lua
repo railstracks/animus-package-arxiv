@@ -10,7 +10,7 @@
 
 local shared = {}
 
-shared.UA = "animus-arxiv-package/0.1.2 (agent reading cache; contact via arxiv user)"
+shared.UA = "animus-arxiv-package/0.1.3 (agent reading cache; contact via arxiv user)"
 shared.API = "https://export.arxiv.org/api/query"
 shared.HTML_BASE = "https://arxiv.org/html/"
 shared.PDF_BASE = "https://arxiv.org/pdf/"
@@ -40,15 +40,41 @@ end
 -- have ctx.crypto nil — 0.1.1's unconditional call broke 'paper cache'
 -- universally on Buffett's image). The hash is informational metadata
 -- (change detection on re-cache), not a lookup key — fallback is safe.
+-- 0.1.3: large bodies are SAMPLED, not swept. Pure-Lua djb2 costs ~8.5 VM
+-- instructions/byte — a full sweep of a heavy LaTeXML rendering (1.75MB)
+-- costs ~15M instructions and blows the kernel's 10M sandbox budget by
+-- itself (0.1.2 field report: deterministic instruction-limit trip on a
+-- math/tables-heavy paper; 4-17x lighter controls cached fine). Head +
+-- tail + 12 interior spans (~29KB of any document) keep change detection —
+-- arXiv re-renders change the whole document, head and tail included — at
+-- ~0.25M instructions regardless of size. Format tags the sweep and
+-- carries the length: djb2:<h> (full, small bodies) / djb2s:<h>:<len>
+-- (sampled, large).
 function shared.body_hash(ctx, s)
   if ctx ~= nil and ctx.crypto ~= nil and ctx.crypto.sha256 ~= nil then
     return ctx.crypto.sha256(s)
   end
+  s = s or ""
+  local n = #s
+  local SAMPLE, SPANS, SPAN_BYTES = 4096, 12, 2048
   local h = 5381
-  for i = 1, #s do
-    h = (h * 33 + string.byte(s, i)) % 4294967296
+  local function sweep(from, to)
+    for i = from, to do
+      h = (h * 33 + string.byte(s, i)) % 4294967296
+    end
   end
-  return string.format("djb2:%08x", h)
+  if n <= 48000 then
+    sweep(1, n)
+    return string.format("djb2:%08x", h)
+  end
+  sweep(1, SAMPLE)
+  local step = math.floor((n - 2 * SAMPLE) / SPANS)
+  for k = 0, SPANS - 1 do
+    local from = SAMPLE + 1 + k * step
+    sweep(from, from + SPAN_BYTES - 1)
+  end
+  sweep(n - SAMPLE + 1, n)
+  return string.format("djb2s:%08x:%d", h, n)
 end
 
 -- HTML entity decode: the named set plus numeric forms. utf8.char may be
