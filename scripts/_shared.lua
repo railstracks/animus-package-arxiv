@@ -117,14 +117,58 @@ function shared.compact(e, summary_chars)
   }
 end
 
--- URL-encode an arXiv search query: space → '+' (arXiv's separator form),
--- everything outside unreserved (+ exempt) percent-encoded.
+-- Compile an agent-supplied query into arXiv search syntax.
+-- Expert mode: any field prefix (cat:, ti:, abs:, all:…), boolean
+-- operator, or parenthesis → VERBATIM passthrough. Fixes the cat: bug
+-- (Buffett field report #1): 'cat:q-fin.CP' wrapped as all:cat:q-fin.CP
+-- → HTTP 400.
+-- Simple mode: terms and quoted phrases AND-joined as all: fields.
+-- Fixes the silent-OR bug (Buffett #2): arXiv rewrites space-separated
+-- terms as implicit OR — 'sovereign default credit supply' returned the
+-- latest-indexed papers from random fields (feed-echo witness:
+-- 'all:sovereign OR all:default OR all:credit OR all:supply'). AND is
+-- the overwhelming intent; OR stays available via expert mode.
+function shared.compile_query(query)
+  query = tostring(query)
+  local expert = string.find(query, ":", 1, true) ~= nil
+    or string.find(query, " AND ", 1, true) ~= nil
+    or string.find(query, " OR ", 1, true) ~= nil
+    or string.find(query, "ANDNOT", 1, true) ~= nil
+    or string.find(query, "(", 1, true) ~= nil
+  if expert then return query end
+  local terms = {}
+  local rest = string.gsub(query, '"([^"]*)"', function(p)
+    if #p > 0 then terms[#terms + 1] = 'all:"' .. p .. '"' end
+    return " "
+  end)
+  for w in string.gmatch(rest, "%S+") do
+    terms[#terms + 1] = "all:" .. w
+  end
+  return table.concat(terms, " AND ")
+end
+
+-- The feed's own <title> echoes the query the API actually executed
+-- ('arXiv Query: search_query=…'). Surfacing it in results makes any
+-- server-side query rewrite VISIBLE — the observability that would
+-- have made the silent-OR bug self-evident.
+function shared.feed_query(xml)
+  if xml == nil then return nil end
+  local t = shared.tag(xml, "title")
+  if t == nil then return nil end
+  local q = string.match(t, "search_query=(.-)&id_list")
+  if q == nil then q = string.match(t, "search_query=(.*)") end
+  return q
+end
+
+-- URL-encode a compiled query: space → '+' (arXiv's separator form),
+-- everything outside unreserved (+ and " exempt) percent-encoded.
 function shared.query_url(query, start, max_results, sort)
-  local esc = string.gsub(tostring(query), " ", "+")
-  esc = string.gsub(esc, "([^%w%-%.%_%~%+])", function(c)
+  local compiled = shared.compile_query(query)
+  local esc = string.gsub(compiled, " ", "+")
+  esc = string.gsub(esc, '([^%w%-%.%_%~%+"])', function(c)
     return string.format("%%%02X", string.byte(c))
   end)
-  local url = shared.API .. "?search_query=all:" .. esc ..
+  local url = shared.API .. "?search_query=" .. esc ..
     "&start=" .. tostring(start or 0) ..
     "&max_results=" .. tostring(max_results or 10)
   if sort ~= nil and sort ~= "" then

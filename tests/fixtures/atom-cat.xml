@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/f2AqhOfino7J1R6Y9ZkVjct1Qjc</id>
+  <title>arXiv Query: search_query=cat:q-fin.CP&amp;id_list=&amp;start=0&amp;max_results=3</title>
+  <updated>2026-10-31T20:43:35Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=cat:q-fin.CP&amp;start=0&amp;max_results=3&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>3</opensearch:itemsPerPage>
+  <opensearch:totalResults>3431</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2610.38056v1</id>
+    <title>What Language Models Add to Healthcare-Equity Rankings, and What They Could Have Known</title>
+    <updated>2026-10-27T23:11:53Z</updated>
+    <link href="https://arxiv.org/abs/2610.38056v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.38056v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>In healthcare equities, much of what moves a single name arrives as text: filings, trial and regulatory records, news and analyst commentary. We evaluate how screened non-market features and language-model representations improve market-based equity rankings for US healthcare firms over 2020-2025. Adding balance-sheet and attention features improves the resulting hybrid's price- and liquidity-neutral rank information coefficient (IC) at one, three and twelve months. At twelve months, neutral IC rises from 0.063 to 0.093, a 48% increase, while raw IC rises from 0.289 to 0.298. Language models contribute most clearly at three months: among company-months with scientific-text coverage, a current embedding model raises the hybrid's neutral IC from 0.046 to 0.056. This increment is nominally significant (t = 2.8; paired 95% bootstrap interval [+0.006, +0.015]) and remains exploratory. A larger post hoc gain occurs in months containing trial or regulatory records, consistent with text complementing prices and financial statements at that horizon. Across all text, pre-2020 and current representations yield small positive three-month increments in both neutral and raw IC but no established twelve-month gain. Much of their ranking performance survives within-company time shuffling, consistent with a persistent company component. Rater-cutoff comparisons find negligible pre-cutoff advantages for current models over the pre-2020 rater at one and three months that do not shrink after the cutoffs; twelve-month hindsight attribution remains inconclusive. At twelve months, balance-sheet signals lead after rallies and in volatile markets, while attention leads after declines. Retrospective state-dependent blending improves on a static blend without an established advantage over the full hybrid. Results apply to a survivor-only sector sample and remain unadjusted for the full exploratory search.</summary>
+    <category term="q-fin.CP" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-27T23:11:53Z</published>
+    <arxiv:comment>27 pages, 3 figures. Accepted at the AI4F Workshop, ACM ICAIF 2026, Milan</arxiv:comment>
+    <arxiv:primary_category term="q-fin.CP"/>
+    <author>
+      <name>Haotong Fu</name>
+    </author>
+    <author>
+      <name>Xiyue Zhang</name>
+    </author>
+    <author>
+      <name>Jack Rose</name>
+    </author>
+    <author>
+      <name>Ding Sun</name>
+    </author>
+    <author>
+      <name>Erich Scheller</name>
+    </author>
+    <author>
+      <name>Eric Rose</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.37324v1</id>
+    <title>Optimal Order Placement under a State-Dependent Hawkes Process Limit Order Book model</title>
+    <updated>2026-10-27T14:35:01Z</updated>
+    <link href="https://arxiv.org/abs/2610.37324v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.37324v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>We study optimal quote placement for a market maker facing order flow modeled by a state-dependent Hawkes process. A block-based linear demand specification links market-order counts to execution volumes, providing the demand moments required by a continuous time discrete state dynamic programming formulation. Under a quadratic terminal inventory penalty, we characterize inventory-dependent quotes and derive backward recursions for the coefficients of a quadratic value function. Numerical experiments using LOBSTER data examine quote distributions, inventory exposure, and terminal wealth. The implemented strategy yields higher aggregate terminal wealth than fixed-spread benchmarks at one and three ticks, but lower wealth than the two-tick benchmark. These results illustrate the framework's numerical implementation and distinguish terminal-wealth comparisons from evaluation under the inventory-penalized objective.</summary>
+    <category term="q-fin.TR" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-fin.CP" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-fin.MF" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-27T14:35:01Z</published>
+    <arxiv:comment>44 pages, 11 Figures</arxiv:comment>
+    <arxiv:primary_category term="q-fin.TR"/>
+    <author>
+      <name>Jonathan Chávez Casillas</name>
+    </author>
+    <author>
+      <name>Li Gan</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.37171v1</id>
+    <title>An Application of Geometric Riemannian Pricing Algorithm for Valuing Catastrophe Bonds in Incomplete Markets: Market-Consistent Financial Entropy and the Split of Frequency and Severity Risk Premia</title>
+    <updated>2026-10-27T12:58:01Z</updated>
+    <link href="https://arxiv.org/abs/2610.37171v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.37171v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>This paper presents a framework for pricing catastrophe (CAT) bonds in incomplete markets through Riemannian geometric optimization of financial entropy. We formulate pricing-measure selection as a maximum financial entropy problem on a finite-dimensional manifold of equivalent measures, parameterized by the non-hedgeable market prices of catastrophe frequency and severity risk, with discounting fixed by the default-free term structure. Since unconstrained entropy maximization recovers the physical measure, we incorporate observed secondary-market spreads, both pooled and date by date. For a compound Poisson-generalized Pareto loss model with Wang distortion, we derive closed-form expressions for financial entropy and the Riemannian metric. We show that CAT bond prices depend on frequency and severity premia primarily through the risk-neutral trigger intensity, making the two premia unidentifiable from market data alone; the entropy criterion resolves this ambiguity. Using a hypothetical earthquake CAT bond calibrated to quarterly spreads of Golden State Re II Ltd. (Series 2014-1), we obtain risk-neutral trigger intensities of 6.58 to 10.45 times the physical intensity (9.20 pooled and 18.26 at the end of 2015). The model-implied risk multiple aligns with the market spread-to-expected-loss ratio (8.87 versus 8.81 at issuance). The minimal-entropy measure attributes 53.5% to 63.7% of the log risk multiple to frequency risk, reflecting the selection principle rather than market identification. Finally, equating the coupon with the quoted spread understates the risk multiple by approximately half.</summary>
+    <category term="q-fin.PR" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-fin.CP" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-fin.MF" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="q-fin.RM" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="stat.AP" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-27T12:58:01Z</published>
+    <arxiv:primary_category term="q-fin.PR"/>
+    <author>
+      <name>Saeid Safarveisi</name>
+    </author>
+  </entry>
+</feed>

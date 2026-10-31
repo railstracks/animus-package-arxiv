@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/zsxgSK8XZzbYYndubzqL4HWa+uI</id>
+  <title>arXiv Query: search_query=all:sovereign OR all:default OR all:credit OR all:supply&amp;id_list=&amp;start=0&amp;max_results=3</title>
+  <updated>2026-10-31T20:41:30Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:sovereign+OR+(all:default+OR+(all:credit+OR+all:supply))&amp;start=0&amp;max_results=3&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>3</opensearch:itemsPerPage>
+  <opensearch:totalResults>28575</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2610.40636v1</id>
+    <title>Probing Spatial State Representations in Visual Foundation Models</title>
+    <updated>2026-10-29T17:58:16Z</updated>
+    <link href="https://arxiv.org/abs/2610.40636v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.40636v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>An observer sees only part of the surrounding world, yet must keep track of what lies beyond the current view. Spatial perception therefore involves more than recognizing individual images: it calls for a persistent spatial state that is updated under self-motion and used to guide action. Do visual foundation models provide representations that support such a state? We study this question through four levels of spatial capability---spatial structure, object persistence, predictive spatial update, and actionability---using frozen-feature probes on ten representations under streaming egocentric observations of static indoor environments. The resulting capability profiles vary across tasks, network layers, and prefix lengths: strong readout of the visible scene does not ensure accurate object persistence or future-feature retrieval. Matched controls separate readout accuracy from reliance on visual history and motion. Native future prediction retains recoverable spatial structure, but a spatial reader trained on real features does not transfer to predicted features unchanged. Finally, goal-dependent candidate selection does not establish reliable continuous action utility: predicted actions respond to goal changes, yet supplying the correct goal does not reliably improve progress. Across the four levels, object persistence and actionability build on camera-pose readout, whereas feature prediction builds on visible-scene readout. Together, these findings motivate evaluating spatial representations not only by what can be decoded from them, but by whether that information is maintained beyond observation, updated predictively, and used for goal-directed action.</summary>
+    <category term="cs.CV" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-29T17:58:16Z</published>
+    <arxiv:primary_category term="cs.CV"/>
+    <author>
+      <name>Baiqiao Yin</name>
+    </author>
+    <author>
+      <name>Zhongang Cai</name>
+    </author>
+    <author>
+      <name>Ruisi Wang</name>
+    </author>
+    <author>
+      <name>Qiwei Liang</name>
+    </author>
+    <author>
+      <name>Lei Yang</name>
+    </author>
+    <author>
+      <name>Ziwei Liu</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.40578v1</id>
+    <title>VeriCUA: Verification as Agentic Exploration for Computer-Using Agents</title>
+    <updated>2026-10-29T17:45:26Z</updated>
+    <link href="https://arxiv.org/abs/2610.40578v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.40578v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Building and scaling computer-using agents (CUAs) across desktop, mobile, and web environments requires reliable task-completion verification for data curation, evaluation, and reinforcement learning. Typical automated approaches prompt vision-language models (VLMs) to judge trajectories or generate programs to inspect application state. However, both rely on partial views of complex digital environments. VLM judges are restricted to supplied observations, while generated programs depend on accessible state. These views can omit decisive evidence or leave completion judgments unsupported. Tailoring separate verifiers to different platforms and access settings adds further engineering cost. We present VeriCUA, a platform-agnostic framework for verification through agentic exploration. It treats verification as dynamic evidence gathering and assessment within a shared procedure for online and offline settings across platforms and observation modalities. After inspecting the available context to construct a task rubric, the verifier selects GUI or code checks for unresolved requirements and combines their findings under explicit evidence rules. Experiments show improved agreement with reference labels over the compared baselines across these settings, with the largest offline gains on hard cases and stronger rejection of false completion claims online. Further analyses connect these gains to complementary evidence and test-time exploration.</summary>
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.CL" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.CV" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-29T17:45:26Z</published>
+    <arxiv:comment>Work in progress</arxiv:comment>
+    <arxiv:primary_category term="cs.AI"/>
+    <author>
+      <name>Qiushi Sun</name>
+    </author>
+    <author>
+      <name>Da Yu</name>
+    </author>
+    <author>
+      <name>Alexander Knop</name>
+    </author>
+    <author>
+      <name>Amer Sinha</name>
+    </author>
+    <author>
+      <name>Lingpeng Kong</name>
+    </author>
+    <author>
+      <name>Ben Kao</name>
+    </author>
+    <author>
+      <name>Ravi Kumar</name>
+    </author>
+    <author>
+      <name>Pritish Kamath</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.40548v1</id>
+    <title>Anisotropic overlap reduction functions for arbitrary equal-arm TDI channels: A fully analytic framework and efficient evaluation</title>
+    <updated>2026-10-29T17:38:08Z</updated>
+    <link href="https://arxiv.org/abs/2610.40548v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.40548v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>We establish a unified analytic framework for anisotropic overlap reduction functions (ORFs) of arbitrary finite-delay time-delay interferometry (TDI) channels in a static, reciprocal, equal-arm equilateral constellation. The construction combines the polynomial constraints for laser-noise cancellation, constellation symmetries, and directional-projection integration. A free basis of the admissible channel module separates channel generation from angular integration; two families of elementary angular kernels then generate all channel-pair intensity ORFs. The channel algebra is independent of gravitational-wave polarization, and the intensity-kernel reduction applies to tensor, vector, breathing, and longitudinal sectors. Tensor multipoles illustrate the framework here. Complete propagation effects are retained at arbitrary fixed finite angular order, with explicit examples through $\ell=5$. Prepared frequency batches, shared multiprecision expressions, and local expansions at removable delay points provide stable evaluation. In the prepared-batch benchmark, the analytic implementation is approximately 50 to 5000 times faster than optimized sky quadrature at matched error tolerances. Independent multiprecision sky integrations also validate prescribed mixed error targets down to $10^{-100}$ in the tested cases. The resulting kernels and generation rules supply reusable inputs for anisotropic multichannel background models.</summary>
+    <category term="gr-qc" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-29T17:38:08Z</published>
+    <arxiv:comment>24 pages, 12 figures</arxiv:comment>
+    <arxiv:primary_category term="gr-qc"/>
+    <author>
+      <name>Kun Zhou</name>
+    </author>
+    <author>
+      <name>Jin Li</name>
+    </author>
+  </entry>
+</feed>

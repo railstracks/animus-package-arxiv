@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/cFXyotacFlMhO+NMQv+pwd4I1Wc</id>
+  <title>arXiv Query: search_query=all:sovereign AND all:default AND all:credit AND all:supply&amp;id_list=&amp;start=0&amp;max_results=3</title>
+  <updated>2026-10-31T20:41:35Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:sovereign+AND+(all:default+AND+(all:credit+AND+all:supply))&amp;start=0&amp;max_results=3&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>3</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2006.03592v1</id>
+    <title>Sovereign Default Risk and Credit Supply: Evidence from the Euro Area</title>
+    <updated>2020-06-05T10:55:45Z</updated>
+    <link href="https://arxiv.org/abs/2006.03592v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2006.03592v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Did sovereign default risk affect macroeconomic activity through firms' access to credit during the European sovereign debt crisis? We investigate this question by a estimating a structural panel vector autoregressive model for Italy, Spain, Portugal, and Ireland, where the sovereign risk shock is identified using sign restrictions. The results suggest that decline in the creditworthiness of the sovereign contributed to a fall in private lending and economic activity in several euro-area countries by reducing the value of banks' assets and crowding out private lending.</summary>
+    <category term="econ.GN" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2020-06-05T10:55:45Z</published>
+    <arxiv:comment>24 pages</arxiv:comment>
+    <arxiv:primary_category term="econ.GN"/>
+    <author>
+      <name>Olli Palmén</name>
+    </author>
+    <arxiv:doi>10.1016/j.jimonfin.2020.102257</arxiv:doi>
+    <link rel="related" href="https://doi.org/10.1016/j.jimonfin.2020.102257" title="doi"/>
+  </entry>
+</feed>

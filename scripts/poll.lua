@@ -1,19 +1,28 @@
--- poll: one phrase per invocation, rotating through the configured list.
--- Politeness by construction: the sandbox has no sleep, so the caller's
--- cadence is the throttle (arXiv asks >= 3s between queries — schedule this
--- no tighter than one poll per few minutes). New ids are recorded in
--- 'seen' (capped at the most recent 1000) and returned for the agent to
--- triage; nothing is auto-cached.
+-- poll: new-paper check. With a 'phrase' arg, queries that phrase once
+-- (rotation state untouched); otherwise rotates through the configured
+-- list, one phrase per invocation. Politeness by construction: the
+-- sandbox has no sleep, so the caller's cadence is the throttle (arXiv
+-- asks for >= 3s between queries — schedule this no tighter than one
+-- call per few minutes). New ids are recorded in 'seen' (capped at the
+-- most recent 1000) and returned for the agent to triage; nothing is
+-- ever auto-cached.
 function run(ctx)
+  local a = ctx.args or {}
   local phrases = shared.load_json_state(ctx, "phrases", {})
-  if #phrases == 0 then
-    return {success = false,
-            error = "no phrases configured — set state 'phrases' to a JSON array of search queries",
-            state_key = "phrases"}
+  local phrase, cursor, rotating
+  if a.phrase ~= nil and tostring(a.phrase) ~= "" then
+    phrase = tostring(a.phrase)
+    rotating = false
+  else
+    if #phrases == 0 then
+      return {success = false,
+              error = "no phrases configured — use the 'phrases add' command, or pass a 'phrase' arg for a one-off check",
+              state_key = "phrases"}
+    end
+    cursor = tonumber(ctx.package.get_state("poll_cursor")) or 0
+    phrase = phrases[(cursor % #phrases) + 1]
+    rotating = true
   end
-  local cursor = tonumber(ctx.package.get_state("poll_cursor")) or 0
-  local idx = (cursor % #phrases) + 1
-  local phrase = phrases[idx]
 
   local r = ctx.http.get(shared.query_url(phrase, 0, 5, "submittedDate"),
                          {headers = shared.headers()})
@@ -38,12 +47,16 @@ function run(ctx)
 
   local ok, err = ctx.package.set_state("seen", json.encode(seen))
   if not ok then return {success = false, error = "seen persist failed: " .. tostring(err)} end
-  ok, err = ctx.package.set_state("poll_cursor", tostring(cursor + 1))
-  if not ok then return {success = false, error = "cursor persist failed: " .. tostring(err)} end
 
-  local next_idx = ((cursor + 1) % #phrases) + 1
-  return {
-    success = true, phrase = phrase, returned = #entries,
-    new_count = #new, new_papers = new, next_phrase = phrases[next_idx]
+  local out = {
+    success = true, phrase = phrase,
+    executed_query = shared.feed_query(r.body),
+    returned = #entries, new_count = #new, new_papers = new
   }
+  if rotating then
+    ok, err = ctx.package.set_state("poll_cursor", tostring(cursor + 1))
+    if not ok then return {success = false, error = "cursor persist failed: " .. tostring(err)} end
+    out.next_phrase = phrases[((cursor + 1) % #phrases) + 1]
+  end
+  return out
 end

@@ -1,7 +1,7 @@
 {
   "kind": "api_package",
   "name": "arxiv",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "display_name": "ArXiv Research Papers",
   "description": "ArXiv browsing for agents: search the arXiv API, cache papers locally (HTML rendering → text pages for paginated reading), track phrases with a rotating new-paper poll. No credentials required.",
   "keywords": [
@@ -44,7 +44,7 @@
     {
       "name": "search",
       "kind": "action",
-      "description": "Search arXiv. Returns id, title, authors, date, category and abstract excerpt per hit. sort: submittedDate | relevance | lastUpdatedDate.",
+      "description": "Search arXiv. Plain terms are AND-joined (all:field); quoted phrases group; field queries (cat:, ti:, abs:, au:) and boolean operators (AND/OR/ANDNOT, parens) pass through verbatim. Result echoes executed_query — the query arXiv actually ran — so server-side rewrites are visible. sort: submittedDate | relevance | lastUpdatedDate.",
       "parameters": {
         "query": {
           "type": "string",
@@ -130,8 +130,44 @@
     {
       "name": "poll",
       "kind": "action",
-      "description": "New-paper check: queries one configured phrase per invocation (rotating), returns papers not seen before. Politeness: schedule no tighter than one call per few minutes — arXiv asks for >= 3s between queries. New hits are recorded but never auto-cached; triage is the agent's call.",
+      "description": "New-paper check. With 'phrase': checks that phrase once (rotation untouched). Without: queries one configured phrase per invocation (rotating), returns papers not seen before. Politeness: schedule no tighter than one call per few minutes. New hits are recorded but never auto-cached; triage is the agent's call. Configure the rotation with the 'phrases add' command.",
+      "parameters": {
+        "phrase": {
+          "type": "string",
+          "required": false
+        }
+      },
       "script_file": "scripts/poll.lua"
+    },
+    {
+      "name": "phrases add",
+      "kind": "action",
+      "description": "Append a search phrase to the poll rotation (agent self-configuration — no admin state access needed).",
+      "parameters": {
+        "phrase": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "script_file": "scripts/phrases_add.lua"
+    },
+    {
+      "name": "phrases remove",
+      "kind": "action",
+      "description": "Remove a phrase from the rotation (exact match).",
+      "parameters": {
+        "phrase": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "script_file": "scripts/phrases_remove.lua"
+    },
+    {
+      "name": "phrases list",
+      "kind": "action",
+      "description": "Show the poll rotation, cursor position, and next phrase.",
+      "script_file": "scripts/phrases_list.lua"
     }
   ]
 }

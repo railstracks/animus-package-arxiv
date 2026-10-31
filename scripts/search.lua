@@ -12,5 +12,6 @@ function run(ctx)
   local entries = shared.atom_parse(r.body)
   local out = {}
   for _, e in ipairs(entries) do out[#out + 1] = shared.compact(e) end
-  return {success = true, count = #entries, results = out}
+  return {success = true, count = #entries, results = out,
+          executed_query = shared.feed_query(r.body)}
 end

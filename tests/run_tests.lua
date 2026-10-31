@@ -97,8 +97,9 @@ check("split_pages: tiny → single page", #sp3.pages == 1 and sp3.pages[1] == "
 
 -- ============ shared.query_url / id_url ============
 local q = shared.query_url("electron correlation lattice", 0, 5, "submittedDate")
-check("query_url: spaces → +", q:find("electron%+correlation%+lattice", 1, false) ~= nil or q:find("electron+correlation+lattice") ~= nil, q)
-check("query_url: host + params", q:find("export.arxiv.org/api/query%?search_query=all:") ~= nil, q)
+local want = "all%3Aelectron+AND+all%3Acorrelation+AND+all%3Alattice"
+check("query_url: terms AND-joined", q:find(want, 1, true) ~= nil, q)
+check("query_url: host + params", q:find("export.arxiv.org/api/query?search_query=", 1, true) ~= nil, q)
 check("query_url: sort", q:find("sortBy=submittedDate") ~= nil)
 local iu = shared.id_url("hep-th/9901001")
 check("id_url: slash encoded", iu:find("%%2F") ~= nil, iu)
@@ -268,6 +269,89 @@ local pctx4 = mock.new({
 })
 local pres4 = poll_run(pctx4)
 check("poll: transport failure is loud", pres4.success == false and pres4.error:find("failed") ~= nil, pres4.error)
+
+-- ============ query compiler (Buffett field report: two bugs) ============
+check("compile: plain multiword AND-joined",
+  shared.compile_query("sovereign default credit supply") ==
+    'all:sovereign AND all:default AND all:credit AND all:supply',
+  shared.compile_query("sovereign default credit supply"))
+check("compile: quoted phrase grouped",
+  shared.compile_query('"capital flows" autocallable') ==
+    'all:"capital flows" AND all:autocallable',
+  shared.compile_query('"capital flows" autocallable'))
+check("compile: cat: passthrough (bug #1)",
+  shared.compile_query("cat:q-fin.CP") == "cat:q-fin.CP",
+  shared.compile_query("cat:q-fin.CP"))
+check("compile: boolean passthrough",
+  shared.compile_query("cat:q-fin.CP AND abs:autocallable") == "cat:q-fin.CP AND abs:autocallable")
+check("compile: parens = expert",
+  shared.compile_query('(all:a OR all:b) AND all:c') == '(all:a OR all:b) AND all:c')
+
+local cat_url = shared.query_url("cat:q-fin.CP", 0, 3, "submittedDate")
+check("query_url: cat: not wrapped in all: (bug #1)",
+  cat_url:find("search_query=cat%%3Aq%%-fin%%.CP", 1, false) ~= nil or
+  cat_url:find("search_query=cat%%3Aq%-fin%.CP") ~= nil, cat_url)
+check("query_url: no 'all:cat' anywhere", cat_url:find("all:cat") == nil, cat_url)
+
+-- feed_query: the API's own echo of the executed query
+local orq = shared.feed_query(read_fixture("atom-or-rewrite.xml"))
+check("feed_query: extracts OR-rewrite witness",
+  orq ~= nil and orq:find("OR") ~= nil, tostring(orq))
+check("feed_query: AND-join fixture shows ANDs",
+  (shared.feed_query(read_fixture("atom-and-join.xml")) or ""):find("AND") ~= nil)
+check("feed_query: nil body → nil", shared.feed_query(nil) == nil)
+
+-- search now echoes executed_query
+local eqctx = mock.new({
+  routes = {{match = "export.arxiv.org/api/query", body = read_fixture("atom-or-rewrite.xml")}},
+  args = {query = "sovereign default credit supply"}
+})
+local eqres = search_run(eqctx)
+check("search: executed_query echoed",
+  eqres.success == true and eqres.executed_query ~= nil and eqres.executed_query:find("OR") ~= nil,
+  tostring(eqres.executed_query))
+
+-- poll with explicit phrase: no rotation, no cursor advance
+local opctx = mock.new({
+  routes = {{match = "export.arxiv.org/api/query", body = atom}},
+  state = {phrases = phrase_state, poll_cursor = "7"}
+})
+opctx.args = {phrase = "autocallable pricing"}
+local opres = poll_run(opctx)
+check("poll: explicit phrase checked", opres.success == true and opres.phrase == "autocallable pricing", opres.phrase)
+check("poll: explicit phrase does NOT advance cursor", opctx._state.poll_cursor == "7", opctx._state.poll_cursor)
+check("poll: explicit phrase records seen", (json.decode_safe(opctx._state.seen) or {})[1] ~= nil)
+
+-- ============ phrases add / list / remove ============
+dofile(root .. "/scripts/phrases_add.lua")
+local add_run = run
+dofile(root .. "/scripts/phrases_list.lua")
+local plist_run = run
+dofile(root .. "/scripts/phrases_remove.lua")
+local rem_run = run
+
+local phctx = mock.new({state = {}})
+phctx.args = {phrase = "capital flow"}
+local addres = add_run(phctx)
+check("phrases add: first phrase", addres.success == true and addres.rotation_size == 1, addres.error)
+phctx.args = {phrase = "carry trade unwind"}
+addres = add_run(phctx)
+check("phrases add: second phrase", addres.success == true and addres.rotation_size == 2)
+phctx.args = {phrase = "capital flow"}
+addres = add_run(phctx)
+check("phrases add: duplicate rejected", addres.success == false and addres.rotation ~= nil)
+
+local plres = plist_run(phctx)
+check("phrases list: rotation + next",
+  plres.success == true and plres.count == 2 and plres.next_phrase == "capital flow",
+  tostring(plres.next_phrase))
+
+phctx.args = {phrase = "carry trade unwind"}
+local remres = rem_run(phctx)
+check("phrases remove: exact match removed", remres.success == true and remres.rotation_size == 1, remres.error)
+phctx.args = {phrase = "carry trade"}
+remres = rem_run(phctx)
+check("phrases remove: substring near-miss is loud", remres.success == false and remres.rotation ~= nil)
 
 print("")
 print(("PASSED %d, FAILED %d"):format(passed, failures))

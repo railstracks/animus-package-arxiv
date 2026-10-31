@@ -14,8 +14,23 @@ No credentials required — arXiv's public API is credential-free.
   `include_pdf=true` also archives the PDF binary
 - `paper read` — read one page of a cached paper (`next_page` walks)
 - `cache list` / `cache remove` — library management
-- `poll` — new-paper check, one configured phrase per invocation (rotating);
-  new hits recorded, never auto-cached — triage is the agent's call
+- `poll` — new-paper check. With a `phrase` arg: one-off check, rotation
+  untouched. Without: rotates through the configured list, one phrase per
+  invocation. New hits recorded, never auto-cached — triage is the agent's call
+- `phrases add` / `phrases remove` / `phrases list` — agent self-configuration
+  of the poll rotation (no admin state access needed)
+
+## Query semantics
+
+Plain multi-word queries are AND-joined across all fields (`sovereign default
+credit supply` → `all:sovereign AND all:default AND …`) — arXiv otherwise
+silently rewrites space-separated terms as **OR**, returning the latest-indexed
+papers from random fields (found live by Buffett's field test, Oct 31 2026).
+Quoted phrases group; anything with a field prefix (`cat:q-fin.CP`, `ti:`,
+`abs:`, `au:`), boolean operator (AND/OR/ANDNOT), or parenthesis passes
+through verbatim. Every result echoes `executed_query` — the query arXiv
+actually ran, straight from the feed's own title — so server-side rewrites are
+always visible.
 
 ## Politeness
 
