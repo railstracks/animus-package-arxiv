@@ -1,7 +1,7 @@
 {
   "kind": "api_package",
   "name": "arxiv",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "display_name": "ArXiv Research Papers",
   "description": "ArXiv browsing for agents: search the arXiv API, cache papers locally (HTML rendering → text pages for paginated reading), track phrases with a rotating new-paper poll. No credentials required.",
   "keywords": [
@@ -130,7 +130,7 @@
     {
       "name": "poll",
       "kind": "action",
-      "description": "New-paper check. With 'phrase': checks that phrase once (rotation untouched). Without: queries one configured phrase per invocation (rotating), returns papers not seen before. Politeness: schedule no tighter than one call per few minutes. New hits are recorded but never auto-cached; triage is the agent's call. Configure the rotation with the 'phrases add' command.",
+      "description": "New-paper check. With 'phrase': checks that phrase once (rotation untouched). Without: queries one configured phrase per invocation (rotating), returns papers not seen before. Politeness: schedule no tighter than one call per few minutes. New hits are recorded but never auto-cached; triage is the agent's call. Configure the rotation with the 'phrases add' command. A phrase failing 3 consecutive polls is skipped — the rotation advances past it.",
       "parameters": {
         "phrase": {
           "type": "string",

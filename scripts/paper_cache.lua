@@ -25,7 +25,7 @@ function run(ctx)
   local hr = ctx.http.get(shared.HTML_BASE .. e.id, {headers = shared.headers(), timeout_s = 60})
   if hr.status == 200 and #hr.body > 1000 then
     text = shared.strip_html(hr.body)
-    html_sha = ctx.crypto.sha256(hr.body)
+    html_sha = shared.body_hash(ctx, hr.body)
     mode = "html"
   else
     -- no rendering (or unusably short body): abstract-only cache

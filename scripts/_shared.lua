@@ -10,7 +10,7 @@
 
 local shared = {}
 
-shared.UA = "animus-arxiv-package/0.1.0 (agent reading cache; contact via arxiv user)"
+shared.UA = "animus-arxiv-package/0.1.2 (agent reading cache; contact via arxiv user)"
 shared.API = "https://export.arxiv.org/api/query"
 shared.HTML_BASE = "https://arxiv.org/html/"
 shared.PDF_BASE = "https://arxiv.org/pdf/"
@@ -33,6 +33,22 @@ function shared.http_error(r)
     s = s .. " (" .. tostring(r.error) .. ")"
   end
   return s
+end
+
+-- Body hash for cache metadata: the kernel's sha256 when ctx.crypto is
+-- available, pure-Lua djb2 otherwise (kernels predating the crypto bridge
+-- have ctx.crypto nil — 0.1.1's unconditional call broke 'paper cache'
+-- universally on Buffett's image). The hash is informational metadata
+-- (change detection on re-cache), not a lookup key — fallback is safe.
+function shared.body_hash(ctx, s)
+  if ctx ~= nil and ctx.crypto ~= nil and ctx.crypto.sha256 ~= nil then
+    return ctx.crypto.sha256(s)
+  end
+  local h = 5381
+  for i = 1, #s do
+    h = (h * 33 + string.byte(s, i)) % 4294967296
+  end
+  return string.format("djb2:%08x", h)
 end
 
 -- HTML entity decode: the named set plus numeric forms. utf8.char may be
@@ -161,11 +177,13 @@ function shared.feed_query(xml)
 end
 
 -- URL-encode a compiled query: space → '+' (arXiv's separator form),
--- everything outside unreserved (+ and " exempt) percent-encoded.
+-- everything outside unreserved (+ exempt) percent-encoded — including
+-- quotes as %22: raw '"' in the query string is an arXiv HTTP 400
+-- (0.1.1 field report: quoted-phrase polls failed while unquoted worked).
 function shared.query_url(query, start, max_results, sort)
   local compiled = shared.compile_query(query)
   local esc = string.gsub(compiled, " ", "+")
-  esc = string.gsub(esc, '([^%w%-%.%_%~%+"])', function(c)
+  esc = string.gsub(esc, '([^%w%-%.%_%~%+])', function(c)
     return string.format("%%%02X", string.byte(c))
   end)
   local url = shared.API .. "?search_query=" .. esc ..

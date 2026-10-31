@@ -27,8 +27,27 @@ function run(ctx)
   local r = ctx.http.get(shared.query_url(phrase, 0, 5, "submittedDate"),
                          {headers = shared.headers()})
   if r.status ~= 200 then
-    return {success = false, error = "poll query failed: " .. shared.http_error(r),
-            phrase = phrase}
+    local msg = "poll query failed: " .. shared.http_error(r)
+    if rotating then
+      -- failure streak: a phrase failing 3 CONSECUTIVE polls is skipped
+      -- (cursor advances past it) instead of wedging the rotation forever;
+      -- fewer than 3 still holds the cursor — the retry-by-design endorsed
+      -- for transient failures in the 0.1.1 field report.
+      local fails = shared.load_json_state(ctx, "poll_fails", {})
+      fails[phrase] = (fails[phrase] or 0) + 1
+      if fails[phrase] >= 3 then
+        fails[phrase] = nil
+        ctx.package.set_state("poll_fails", json.encode(fails))
+        ctx.package.set_state("poll_cursor", tostring(cursor + 1))
+        return {success = false,
+                error = msg .. " — failed 3 consecutive polls, skipped (fix or remove: phrases remove '" ..
+                  phrase .. "')",
+                phrase = phrase, skipped = true,
+                next_phrase = phrases[((cursor + 1) % #phrases) + 1]}
+      end
+      ctx.package.set_state("poll_fails", json.encode(fails))
+    end
+    return {success = false, error = msg, phrase = phrase}
   end
   local entries = shared.atom_parse(r.body)
 
@@ -47,6 +66,15 @@ function run(ctx)
 
   local ok, err = ctx.package.set_state("seen", json.encode(seen))
   if not ok then return {success = false, error = "seen persist failed: " .. tostring(err)} end
+
+  -- success clears any failure streak for this phrase (rotation only)
+  if rotating then
+    local fails = shared.load_json_state(ctx, "poll_fails", {})
+    if fails[phrase] ~= nil then
+      fails[phrase] = nil
+      ctx.package.set_state("poll_fails", json.encode(fails))
+    end
+  end
 
   local out = {
     success = true, phrase = phrase,

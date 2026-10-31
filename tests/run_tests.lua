@@ -101,6 +101,25 @@ local want = "all%3Aelectron+AND+all%3Acorrelation+AND+all%3Alattice"
 check("query_url: terms AND-joined", q:find(want, 1, true) ~= nil, q)
 check("query_url: host + params", q:find("export.arxiv.org/api/query?search_query=", 1, true) ~= nil, q)
 check("query_url: sort", q:find("sortBy=submittedDate") ~= nil)
+
+-- quoted phrases must be %22-encoded (0.1.1: raw quotes → arXiv HTTP 400)
+local qurl = shared.query_url('"capital flows"', 0, 5, "submittedDate")
+check("query_url: quoted phrase %22-encoded",
+      qurl:find("search_query=all%3A%22capital+flows%22", 1, true) ~= nil, qurl)
+check("query_url: no raw quotes in url", qurl:find('"', 1, true) == nil, qurl)
+local qmulti = shared.query_url('"capital flows" autocallable', 0, 5, "submittedDate")
+check("query_url: mixed phrase+term encoding",
+      qmulti:find("all%3A%22capital+flows%22+AND+all%3Aautocallable", 1, true) ~= nil, qmulti)
+
+-- body_hash: kernel-independent cache hash (0.1.1: unconditional ctx.crypto
+-- broke paper cache on kernels without the crypto bridge — Buffett's image)
+local bh = shared.body_hash(nil, "some html body")
+check("body_hash: no crypto → djb2 hex", string.find(bh, "^djb2:%x+$") ~= nil, bh)
+check("body_hash: deterministic", shared.body_hash(nil, "some html body") == bh)
+check("body_hash: input-sensitive", shared.body_hash(nil, "different body") ~= bh)
+local bh_ctx = {crypto = {sha256 = function(s) return "sha(" .. s .. ")" end}}
+check("body_hash: kernel sha256 passthrough",
+      shared.body_hash(bh_ctx, "x") == "sha(x)", shared.body_hash(bh_ctx, "x"))
 local iu = shared.id_url("hep-th/9901001")
 check("id_url: slash encoded", iu:find("%%2F") ~= nil, iu)
 
@@ -145,6 +164,23 @@ check("cache: pages written", cres.pages ~= nil and cres.pages >= 5, cres.pages)
 check("cache: library state updated", cctx._state.library ~= nil and cctx._state.library:find("2610.40657v1") ~= nil)
 check("cache: 2 http calls (metadata+html)", #cctx._http_calls == 2, #cctx._http_calls)
 check("cache: abstract in result", cres.abstract ~= nil and #cres.abstract > 30)
+
+-- paper cache on a kernel WITHOUT ctx.crypto (Buffett's image): djb2 fallback
+local cctx2 = mock.new({
+  routes = {
+    {match = "id_list=", body = read_fixture("atom-byid-2610.xml")},
+    {match = "arxiv.org/html/", body = html_body},
+  },
+  args = {id = "2610.40657v1"}
+})
+cctx2.crypto = nil
+local cres2 = cache_run(cctx2)
+check("cache: no-crypto kernel succeeds", cres2.success == true, cres2.error)
+local lib2 = json.decode_safe(cctx2._state.library)
+check("cache: no-crypto html hash is djb2",
+      lib2 ~= nil and lib2["2610.40657v1"] ~= nil and
+        string.find(tostring(lib2["2610.40657v1"].html_sha256), "^djb2:%x+$") ~= nil,
+      lib2 ~= nil and lib2["2610.40657v1"] and tostring(lib2["2610.40657v1"].html_sha256))
 
 -- ============ read back every page ============
 dofile(root .. "/scripts/paper_read.lua")
@@ -258,6 +294,33 @@ check("poll: same feed → 0 new", pres2.success == true and pres2.new_count == 
 -- rotation: cursor 1 → phrase index 2
 check("poll: rotates phrases", pres2.phrase == "agent memory", pres2.phrase)
 check("poll: next_phrase pointer", pres2.next_phrase == "electron correlation lattice", pres2.next_phrase)
+
+-- rotation resilience (0.1.1 field report: one broken phrase wedged the
+-- rotation) — 3 consecutive failures skip the phrase; success clears streaks
+local fctx1 = mock.new({routes = {{match = "export.arxiv.org/api/query", fail = true, status = 400}},
+                        state = {phrases = phrase_state}})
+local fres1 = poll_run(fctx1)
+check("poll: fail 1 holds cursor", fres1.success == false and fctx1._state.poll_cursor == nil,
+      tostring(fctx1._state.poll_cursor))
+local fctx2 = mock.new({routes = {{match = "export.arxiv.org/api/query", fail = true, status = 400}},
+                        state = {phrases = phrase_state, poll_fails = fctx1._state.poll_fails}})
+local fres2 = poll_run(fctx2)
+check("poll: fail 2 still holds cursor", fres2.success == false and fctx2._state.poll_cursor == nil,
+      tostring(fctx2._state.poll_cursor))
+local fctx3 = mock.new({routes = {{match = "export.arxiv.org/api/query", fail = true, status = 400}},
+                        state = {phrases = phrase_state, poll_fails = fctx2._state.poll_fails}})
+local fres3 = poll_run(fctx3)
+check("poll: fail 3 skips phrase (cursor advances)",
+      fres3.success == false and fres3.skipped == true and fctx3._state.poll_cursor == "1",
+      tostring(fctx3._state.poll_cursor))
+local sctx = mock.new({routes = {{match = "export.arxiv.org/api/query", body = atom}},
+                       state = {phrases = phrase_state,
+                                poll_fails = json.encode({["electron correlation lattice"] = 2})}})
+local sres = poll_run(sctx)
+local cleared = json.decode_safe(sctx._state.poll_fails)
+check("poll: success clears failure streak",
+      sres.success == true and cleared ~= nil and cleared["electron correlation lattice"] == nil,
+      tostring(sctx._state.poll_fails))
 
 local pctx3 = mock.new({state = {}})
 local pres3 = poll_run(pctx3)
